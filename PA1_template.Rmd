@@ -8,7 +8,10 @@ output:
 
 ## Loading and preprocessing the data
 
-
+Test commit to see if project integration is working
+```{r}
+print ("foo")
+```
 
 ## What is mean total number of steps taken per day?
 
