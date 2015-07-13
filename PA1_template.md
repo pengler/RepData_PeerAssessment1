@@ -86,6 +86,6 @@ print (temp[which.max(temp$average),],row.names=FALSE)
 
 ## Imputing missing values
 
-
+Test of project intergration at work 
 
 ## Are there differences in activity patterns between weekdays and weekends?
