@@ -16,21 +16,26 @@ Clean up and extend our data
 # the interval seems to be in 24 hour time 00:00 -> 23:55
 # Add and extra column "time" that will convert date and interval into a
 # POXIXct object for later data calulations
-activityData$time <- strptime(sprintf("%s %04d", 
+activityData$date <- as.Date(strptime(sprintf("%s %04d", 
                                       activityData$date, 
                                       activityData$interval), 
                               format = "%F %H%M", 
-                              tz = "GMT")
+                              tz = "GMT")) 
 ```
 
 ## What is mean total number of steps taken per day?
 
 ```r
 stepsPerDay<-tapply(activityData$steps,activityData$date,FUN=sum)
-hist(stepsPerDay,breaks=10, main="Steps per Day",xlab="steps")
+hist(stepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
 ```
 
 ![](PA1_template_files/figure-html/stepshistogram-1.png) 
+
+```r
+#require(ggplot2)
+#qplot (data=stepsPerDay,geom="histogram")
+```
 
 
 ```r
@@ -111,10 +116,15 @@ Create a histogram of the the new data calculate the mean and median
 # sum up the total steps per day based on the the new data.frame 
 # with the imputed steps per interval calaulated in the previous step
 newStepsPerDay<-tapply(newActivityData$steps,newActivityData$date,FUN=sum)
-hist(newStepsPerDay,breaks=10, main="Steps per Day",xlab="steps")
+hist(newStepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
 ```
 
 ![](PA1_template_files/figure-html/newstepshistogram-1.png) 
+
+```r
+#require (ggplot2)
+#ggplot(newStepsPerDay)
+```
 
 
 ```r
@@ -131,4 +141,17 @@ newStepsMM
 ## Are there differences in activity patterns between weekdays and weekends?
 
 Create a weekday/weekend factor
+
+```r
+dow <- function (x) { 
+  day<-weekdays(x)
+  if (day=="Saturday"|| day=="Sunday") {
+    return("weekend") 
+  } else {
+      return("weekday")
+  }
+}
+activityData$daytype <- sapply(activityData$date,FUN=dow)
+```
+
 Average number of steps taken, averaged across all weekday days or weekend days
