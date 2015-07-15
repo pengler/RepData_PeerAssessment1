@@ -64,10 +64,11 @@ rownames(avgDailyActivity) <- sub('(?<=.{2})',
                                   perl=TRUE)
 # Convert to a data frame for plotting
 temp <- data.frame(interval=rownames(avgDailyActivity),average=avgDailyActivity)
+#plot(average ~ interval,data = temp, type = "l")
 plot(temp, 
      type="l", 
-     main="Average Daily Activity Pattern", 
-     xlab ="Interval", 
+    main="Average Daily Activity Pattern", 
+    xlab ="Interval", 
      ylab="Average Steps per Interval")
 ```
 
@@ -86,6 +87,45 @@ print (temp[which.max(temp$average),],row.names=FALSE)
 
 ## Imputing missing values
 
-Test of project intergration at work 
+Find the number of NAs
 
+```r
+sum(is.na(activityData$steps))
+```
+
+```
+## [1] 2304
+```
+
+Imput the values for the NAs
+
+```r
+newActivityData <- activityData
+newActivityData[is.na(newActivityData$steps),]$steps <- round(tapply(X=newActivityData$steps,INDEX=newActivityData$interval,FUN=mean,na.rm=TRUE))
+```
+
+Create a histogram of the the new data calculate the mean and median
+
+```r
+newStepsPerDay<-tapply(activityData$steps,activityData$date,FUN=sum)
+hist(newStepsPerDay,breaks=10, main="Steps per Day",xlab="steps")
+```
+
+![](PA1_template_files/figure-html/newstepshistogram-1.png) 
+
+
+```r
+# Remove the NAs while calculating the mean and median
+newStepsMM <- c(mean(newStepsPerDay,na.rm=TRUE),median(newStepsPerDay,na.rm=TRUE))
+newStepsMM <- setNames (newStepsMM,c("Mean","Median"))
+newStepsMM
+```
+
+```
+##     Mean   Median 
+## 10766.19 10765.00
+```
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Create a weekday/weekend factor
+Average number of steps taken, averaged across all weekday days or weekend days
