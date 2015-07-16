@@ -32,11 +32,6 @@ hist(stepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
 
 ![](PA1_template_files/figure-html/stepshistogram-1.png) 
 
-```r
-#require(ggplot2)
-#qplot (data=stepsPerDay,geom="histogram")
-```
-
 
 ```r
 # Remove the NAs while calculating the mean and median
@@ -121,11 +116,6 @@ hist(newStepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
 
 ![](PA1_template_files/figure-html/newstepshistogram-1.png) 
 
-```r
-#require (ggplot2)
-#ggplot(newStepsPerDay)
-```
-
 
 ```r
 # Calculate the mean and median (all NAs have been imputed)
@@ -155,3 +145,17 @@ activityData$daytype <- sapply(activityData$date,FUN=dow)
 ```
 
 Average number of steps taken, averaged across all weekday days or weekend days
+
+```r
+# Calculate averages (means) by factor
+stepsByDaytype<- data.frame(tapply( activityData$steps, INDEX = list(activityData$interval, activityData$daytype),FUN=mean,na.rm=TRUE ))
+# Some data.frame clean up to make things plot correctly
+stepsByDaytype <- cbind(interval =rownames(stepsByDaytype), stepsByDaytype)
+stepsByDaytype$interval <- as.character(stepsByDaytype$interval)
+par(mfrow=c(2,1), mar=c(2,5,1,1))
+with (stepsByDaytype, plot ( weekend ~ interval, type="l", main="weekend", xlab="", ylab="steps"))
+with (stepsByDaytype, plot ( weekday ~ interval, type="l", main="weekday", xlab ="interval", ylab="steps"))
+```
+
+![](PA1_template_files/figure-html/weekdayend-1.png) 
+

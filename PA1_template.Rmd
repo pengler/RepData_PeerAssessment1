@@ -30,8 +30,7 @@ activityData$date <- as.Date(strptime(sprintf("%s %04d",
 ```{r stepshistogram, echo=TRUE}
 stepsPerDay<-tapply(activityData$steps,activityData$date,FUN=sum)
 hist(stepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
-#require(ggplot2)
-#qplot (data=stepsPerDay,geom="histogram")
+
 ```
 
 ```{r stepsmeanmedian, echo=TRUE}
@@ -95,8 +94,7 @@ Create a histogram of the the new data calculate the mean and median
 # with the imputed steps per interval calaulated in the previous step
 newStepsPerDay<-tapply(newActivityData$steps,newActivityData$date,FUN=sum)
 hist(newStepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
-#require (ggplot2)
-#ggplot(newStepsPerDay)
+
 
 ```
 
@@ -122,3 +120,14 @@ activityData$daytype <- sapply(activityData$date,FUN=dow)
 ```
 
 Average number of steps taken, averaged across all weekday days or weekend days
+```{r weekdayend, echo=TRUE}
+# Calculate averages (means) by factor
+stepsByDaytype<- data.frame(tapply( activityData$steps, INDEX = list(activityData$interval, activityData$daytype),FUN=mean,na.rm=TRUE ))
+# Some data.frame clean up to make things plot correctly
+stepsByDaytype <- cbind(interval =rownames(stepsByDaytype), stepsByDaytype)
+stepsByDaytype$interval <- as.character(stepsByDaytype$interval)
+par(mfrow=c(2,1), mar=c(2,5,1,1))
+with (stepsByDaytype, plot ( weekend ~ interval, type="l", main="weekend", xlab="", ylab="steps"))
+with (stepsByDaytype, plot ( weekday ~ interval, type="l", main="weekday", xlab ="interval", ylab="steps"))
+```
+
