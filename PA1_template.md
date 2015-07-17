@@ -1,6 +1,5 @@
 # Reproducible Research: Peer Assessment 1
 
-
 ## Loading and preprocessing the data
 
 Read in the zip file
@@ -13,9 +12,7 @@ activityData <- read.csv(unz("activity.zip", "activity.csv"))
 Clean up and extend our data
 
 ```r
-# the interval seems to be in 24 hour time 00:00 -> 23:55
-# Add and extra column "time" that will convert date and interval into a
-# POXIXct object for later data calulations
+# Convert "date" column to Date class to support later calculations
 activityData$date <- as.Date(strptime(sprintf("%s %04d", 
                                       activityData$date, 
                                       activityData$interval), 
@@ -23,7 +20,10 @@ activityData$date <- as.Date(strptime(sprintf("%s %04d",
                               tz = "GMT")) 
 ```
 
+
 ## What is mean total number of steps taken per day?
+
+Create a histogram of the average steps be day
 
 ```r
 stepsPerDay<-tapply(activityData$steps,activityData$date,FUN=sum)
@@ -32,6 +32,7 @@ hist(stepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
 
 ![](PA1_template_files/figure-html/stepshistogram-1.png) 
 
+Calculate the median and mean of the data sets removing NAs
 
 ```r
 # Remove the NAs while calculating the mean and median
@@ -48,7 +49,7 @@ stepsMM
 
 ## What is the average daily activity pattern?
 
-Average steps per interval
+Calculate the average (mean) steps per interval
 
 ```r
 # Calulate our averages over intervals ignoring NAs
@@ -56,6 +57,8 @@ avgDailyActivity <- data.frame(tapply( activityData$steps,
                                        activityData$interval,
                                        FUN=mean,
                                        na.rm=TRUE ))
+
+#Convert intervals to a factor to support graphing
 avgDailyActivity$interval <-levels(as.factor( activityData$interval))
 colnames(avgDailyActivity) <-c("Average.Steps","Interval")
 with (avgDailyActivity, plot ( Average.Steps ~ Interval, 
@@ -79,6 +82,7 @@ print (avgDailyActivity[which.max(avgDailyActivity$Average.Steps),],row.names=FA
 ##       206.1698      835
 ```
 
+
 ## Imputing missing values
 
 Find the number of NAs
@@ -91,7 +95,8 @@ sum(is.na(activityData$steps))
 ## [1] 2304
 ```
 
-Imput the values for the NAs
+Imput the values for the NAs - values will be calculated by taking the mean
+of all the values overall all of the same intervals on different days
 
 ```r
 # Copy the activity to a new data.frame object
@@ -116,6 +121,7 @@ hist(newStepsPerDay,breaks=20, main="Steps per Day",xlab="steps")
 
 ![](PA1_template_files/figure-html/newstepshistogram-1.png) 
 
+Calculate the median and mean of the data set with the imputed values
 
 ```r
 # Calculate the mean and median (all NAs have been imputed)
@@ -128,12 +134,14 @@ newStepsMM
 ##     Mean   Median 
 ## 10765.64 10762.00
 ```
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
 
 Create a weekday/weekend factor
 
 ```r
-dow <- function (x) { 
+wwfactor <- function (x) { 
   day<-weekdays(x)
   if (day=="Saturday"|| day=="Sunday") {
     return("weekend") 
@@ -141,21 +149,32 @@ dow <- function (x) {
       return("weekday")
   }
 }
-activityData$daytype <- sapply(activityData$date,FUN=dow)
+activityData$daytype <- sapply(activityData$date,FUN=wwfactor)
 ```
 
 Average number of steps taken, averaged across all weekday days or weekend days
 
 ```r
 # Calculate averages (means) by factor
-stepsByDaytype<- data.frame(tapply( activityData$steps, INDEX = list(activityData$interval, activityData$daytype),FUN=mean,na.rm=TRUE ))
+stepsByDaytype<- data.frame(tapply( activityData$steps, 
+                                    INDEX = list(activityData$interval, 
+                                                 activityData$daytype),
+                                    FUN=mean,na.rm=TRUE ))
+
 # Some data.frame clean up to make things plot correctly
 stepsByDaytype <- cbind(interval =rownames(stepsByDaytype), stepsByDaytype)
 stepsByDaytype$interval <- as.character(stepsByDaytype$interval)
 par(mfrow=c(2,1), mar=c(2,5,1,1))
-with (stepsByDaytype, plot ( weekend ~ interval, type="l", main="weekend", xlab="", ylab="steps"))
-with (stepsByDaytype, plot ( weekday ~ interval, type="l", main="weekday", xlab ="interval", ylab="steps"))
+with (stepsByDaytype, plot ( weekend ~ interval, 
+                             type="l", 
+                             main="weekend", 
+                             xlab="", 
+                             ylab="steps"))
+with (stepsByDaytype, plot ( weekday ~ interval, 
+                             type="l", 
+                             main="weekday", 
+                             xlab ="interval", 
+                             ylab="steps"))
 ```
 
 ![](PA1_template_files/figure-html/weekdayend-1.png) 
-
